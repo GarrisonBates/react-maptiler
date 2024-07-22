@@ -1,9 +1,17 @@
 import { useMap } from "$/hooks/useMap";
+import { convertReactNodeToDomNode } from "$/utils/domUtils";
 import * as maptilersdk from "@maptiler/sdk";
-import { ReactNode, useEffect } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type MarkerType = {
   children?: ReactNode;
+  lngLat: maptilersdk.LngLatLike;
   anchor?:
     | "center"
     | "top"
@@ -18,29 +26,43 @@ type MarkerType = {
   clickTolerance?: number;
   color?: string;
   draggable?: boolean;
-  element?: HTMLElement;
-  lngLat: maptilersdk.LngLatLike;
-
+  element?: ReactNode;
   /**
    * Event handlers:
    */
   onClick?: (e?: MouseEvent) => void;
+  onDrag?: (e?: maptilersdk.MapMouseEvent) => void;
   onDragend?: (e?: maptilersdk.MapMouseEvent) => void;
 };
 
+type MarkerContextType = {
+  lngLat: maptilersdk.LngLatLike;
+};
+
+const MarkerContext = createContext<MarkerContextType | null>(null);
+
+export const useMarkerContext = () => useContext(MarkerContext);
+
+/**
+ * Binding for MapTiler Marker element.
+ * @returns
+ */
 export const Marker = ({
   children,
+  lngLat: lngLatProp,
   anchor = "bottom",
   className,
   clickTolerance,
   color,
   draggable,
   element,
-  lngLat,
   onClick,
+  onDrag,
   onDragend,
 }: MarkerType) => {
   const map = useMap();
+  const [lngLat, setLngLat] = useState(lngLatProp);
+  console.log("lngLat: ", lngLat);
 
   useEffect(() => {
     if (!map) throw new Error("<Marker> must be a child of <Map>");
@@ -50,14 +72,10 @@ export const Marker = ({
       clickTolerance,
       color,
       draggable,
-      element,
+      element: convertReactNodeToDomNode(element),
     })
       .setLngLat(lngLat)
       .addTo(map);
-
-    /**
-     * Add any specified event handlers to the <Marker> if specified:
-     */
 
     /**
      * Marker doesn't support a direct "click" event, so we have to add the click handler to the <Marker>'s element:
@@ -67,6 +85,8 @@ export const Marker = ({
       element.addEventListener("click", onClick);
     }
 
+    if (onDrag) marker.on("drag", onDrag);
+
     if (onDragend) marker.on("dragend", onDragend);
 
     return () => {
@@ -74,5 +94,9 @@ export const Marker = ({
     };
   }, []);
 
-  return children;
+  return (
+    <MarkerContext.Provider value={{ lngLat }}>
+      {children}
+    </MarkerContext.Provider>
+  );
 };

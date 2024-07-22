@@ -1,4 +1,5 @@
 import * as maptilersdk from "@maptiler/sdk";
+import "@maptiler/sdk/dist/maptiler-sdk.css";
 import clsx from "clsx";
 import { createContext, ReactNode, useEffect, useRef, useState } from "react";
 
