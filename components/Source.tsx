@@ -1,51 +1,60 @@
 import { useMap } from "$/hooks/useMap";
 import {
-  GeoJSONSource,
-  ImageSource,
-  RasterDEMTileSource,
-  RasterTileSource,
-  VectorTileSource,
-  VideoSource,
+  GeoJSONSourceSpecification,
+  ImageSourceSpecification,
+  RasterDEMSourceSpecification,
+  RasterSourceSpecification,
+  VectorSourceSpecification,
+  VideoSourceSpecification,
 } from "@maptiler/sdk";
 import { useEffect } from "react";
 
-interface CommonProps {
+type PropTypes = {
   children: React.ReactNode;
   id: string;
-}
-
-type GeoJSONSourceProps = CommonProps &
-  GeoJSONSource & { type: "geojson"; data: GeoJSON.GeoJSON | string };
-type VectorTileSourceProps = CommonProps &
-  VectorTileSource & { type: "vector" };
-type RasterTileSourceProps = CommonProps &
-  RasterTileSource & { type: "raster" };
-type RasterDEMTileSourceProps = CommonProps &
-  RasterDEMTileSource & { type: "raster-dem" };
-type ImageSourceProps = CommonProps & ImageSource & { type: "image" };
-type VideoSourceProps = CommonProps & VideoSource & { type: "video" };
-
-type PropTypes =
-  | GeoJSONSourceProps
-  | VectorTileSourceProps
-  | RasterTileSourceProps
-  | RasterDEMTileSourceProps
-  | ImageSourceProps
-  | VideoSourceProps;
+} & (
+  | GeoJSONSourceSpecification
+  | VectorSourceSpecification
+  | RasterSourceSpecification
+  | RasterDEMSourceSpecification
+  | ImageSourceSpecification
+  | VideoSourceSpecification
+);
 
 export const Source = ({ children, id, type, ...props }: PropTypes) => {
   const map = useMap();
+
+  /**
+   * Add the source to the map:
+   */
   useEffect(() => {
     switch (type) {
       case "geojson":
-        map.addSource(id, {
-          type,
-          data: (props as GeoJSONSourceProps).data,
-          ...props,
-        });
+        map.addSource(id, props as GeoJSONSourceSpecification);
         break;
-      // @TODO: Add other source types
+      case "vector":
+        map.addSource(id, props as VectorSourceSpecification);
+        break;
+      case "raster":
+        map.addSource(id, props as RasterSourceSpecification);
+        break;
+      case "raster-dem":
+        map.addSource(id, props as RasterDEMSourceSpecification);
+        break;
+      case "image":
+        map.addSource(id, props as ImageSourceSpecification);
+        break;
+      case "video":
+        map.addSource(id, props as VideoSourceSpecification);
+        break;
     }
+
+    /**
+     * When component unmounts, remove the source from the map:
+     */
+    return () => {
+      map.removeSource(id);
+    };
   }, []);
 
   return null;
