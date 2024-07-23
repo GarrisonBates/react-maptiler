@@ -3,7 +3,6 @@ import { useContext } from "react";
 
 export const useMap = () => {
   const { map } = useContext(MapContext);
-  console.log("context: ", useContext(MapContext));
-  console.log("mapContext: ", map);
+  if (!map) throw new Error("useMap must be called from a child of <Map>");
   return map;
 };
