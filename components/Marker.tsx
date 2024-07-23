@@ -1,16 +1,11 @@
 import { useMap } from "$/hooks/useMap";
 import { convertReactNodeToDomNode } from "$/utils/domUtils";
 import * as maptilersdk from "@maptiler/sdk";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 
 type MarkerType = {
   children?: ReactNode;
+  id?: string;
   lngLat: maptilersdk.LngLatLike;
   anchor?:
     | "center"
@@ -27,6 +22,10 @@ type MarkerType = {
   color?: string;
   draggable?: boolean;
   element?: ReactNode;
+  src?: string;
+  width?: number;
+  height?: number;
+  data?: { [key: string]: string };
   /**
    * Event handlers:
    */
@@ -49,33 +48,59 @@ export const useMarkerContext = () => useContext(MarkerContext);
  */
 export const Marker = ({
   children,
-  lngLat: lngLatProp,
+  id,
+  lngLat,
   anchor = "bottom",
   className,
   clickTolerance,
   color,
   draggable,
-  element,
+  element: elementProp,
   onClick,
   onDrag,
   onDragend,
+  src,
+  width = 25,
+  height = 41,
+  data,
 }: MarkerType) => {
   const map = useMap();
-  const [lngLat, setLngLat] = useState(lngLatProp);
-  console.log("lngLat: ", lngLat);
 
   useEffect(() => {
     if (!map) throw new Error("<Marker> must be a child of <Map>");
+
+    /**
+     * Set the marker's HTML element according to props. If src is provided, create an <img> element with the specified width and height. If element is provided, use it. Otherwise, use the MapTiler default:
+     */
+    let element;
+    if (src) element = <img src={src} width={width} height={height} />;
+    else if (elementProp) element = elementProp;
+    else element = undefined;
+
     const marker = new maptilersdk.Marker({
       anchor,
       className,
       clickTolerance,
       color,
       draggable,
-      element: convertReactNodeToDomNode(element),
+      element: element ? convertReactNodeToDomNode(element) : undefined,
     })
       .setLngLat(lngLat)
       .addTo(map);
+
+    /**
+     * Add data-* attributes to the marker's HTML element, if specified:
+     */
+    const el = marker.getElement();
+    if (data) {
+      for (const [key, value] of Object.entries(data)) {
+        el.setAttribute(`data-${key}`, value);
+      }
+    }
+    /**
+     * Set the marker's HTML element's id, if specified:
+     */
+    if (id) el.id = id;
 
     /**
      * Marker doesn't support a direct "click" event, so we have to add the click handler to the <Marker>'s element:
