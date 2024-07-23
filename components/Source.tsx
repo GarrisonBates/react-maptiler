@@ -7,10 +7,10 @@ import {
   VectorSourceSpecification,
   VideoSourceSpecification,
 } from "@maptiler/sdk";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type PropTypes = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   id: string;
 } & (
   | GeoJSONSourceSpecification
@@ -21,14 +21,18 @@ type PropTypes = {
   | VideoSourceSpecification
 );
 
-export const Source = ({ children, id, type, ...props }: PropTypes) => {
+export const Source = ({ children, id, ...props }: PropTypes) => {
   const map = useMap();
+  /**
+   * Used to prevent children (i.e. <Layer>) from rendering before the source is added to the map:
+   */
+  const [isLoaded, setIsLoaded] = useState(false);
 
   /**
    * Add the source to the map:
    */
   useEffect(() => {
-    switch (type) {
+    switch (props.type) {
       case "geojson":
         map.addSource(id, props as GeoJSONSourceSpecification);
         break;
@@ -49,6 +53,8 @@ export const Source = ({ children, id, type, ...props }: PropTypes) => {
         break;
     }
 
+    setIsLoaded(true);
+
     /**
      * When component unmounts, remove the source from the map:
      */
@@ -57,5 +63,5 @@ export const Source = ({ children, id, type, ...props }: PropTypes) => {
     };
   }, []);
 
-  return null;
+  return isLoaded && children;
 };

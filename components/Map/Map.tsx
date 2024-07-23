@@ -56,6 +56,8 @@ export const Map = ({
   pitch = 0,
   bounds,
 }: MapTypes) => {
+  const [styleLoaded, setStyleLoaded] = useState(false);
+
   /**
    * map stores map object, and mapContainer is a ref to the container that will hold the map:
    */
@@ -77,7 +79,7 @@ export const Map = ({
       bounds,
     });
 
-    newMap.on("click", () => "map clicked");
+    newMap.on("style.load", () => setStyleLoaded(true));
 
     setMap(newMap);
 
@@ -97,7 +99,7 @@ export const Map = ({
           style={{ position: "absolute", width: "100%", height: "100%" }}
           ref={mapContainer}
         >
-          {map && children}
+          {styleLoaded && children}
         </div>
       </div>
     </MapContext.Provider>
