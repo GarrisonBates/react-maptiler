@@ -1,3 +1,4 @@
+import { useSourceId } from "$/components/Source";
 import { useMap } from "$/hooks/useMap";
 import {
   BackgroundLayerSpecification,
@@ -15,6 +16,7 @@ import { useEffect } from "react";
 
 export const Layer = (props: LayerSpecification) => {
   const { map } = useMap();
+  const sourceId = useSourceId();
 
   /**
    * Add layer to map on component mount:
@@ -22,28 +24,52 @@ export const Layer = (props: LayerSpecification) => {
   useEffect(() => {
     switch (props.type) {
       case "fill":
-        map?.addLayer(props as FillLayerSpecification);
+        map?.addLayer({
+          ...(props as FillLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "line":
-        map?.addLayer(props as LineLayerSpecification);
+        map?.addLayer({
+          ...(props as LineLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "symbol":
-        map?.addLayer(props as SymbolLayerSpecification);
+        map?.addLayer({
+          ...(props as SymbolLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "raster":
-        map?.addLayer(props as RasterLayerSpecification);
+        map?.addLayer({
+          ...(props as RasterLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "circle":
-        map?.addLayer(props as CircleLayerSpecification);
+        map?.addLayer({
+          ...(props as CircleLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "fill-extrusion":
-        map?.addLayer(props as FillExtrusionLayerSpecification);
+        map?.addLayer({
+          ...(props as FillExtrusionLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "heatmap":
-        map?.addLayer(props as HeatmapLayerSpecification);
+        map?.addLayer({
+          ...(props as HeatmapLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "hillshade":
-        map?.addLayer(props as HillshadeLayerSpecification);
+        map?.addLayer({
+          ...(props as HillshadeLayerSpecification),
+          source: sourceId,
+        });
         break;
       case "background":
         map?.addLayer(props as BackgroundLayerSpecification);

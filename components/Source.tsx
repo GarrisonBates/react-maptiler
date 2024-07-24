@@ -7,7 +7,7 @@ import {
   VectorSourceSpecification,
   VideoSourceSpecification,
 } from "@maptiler/sdk";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type PropTypes = {
   children?: React.ReactNode;
@@ -20,6 +20,12 @@ type PropTypes = {
   | ImageSourceSpecification
   | VideoSourceSpecification
 );
+
+/**
+ * Used to pass the source ID to any child <Layer> components:
+ */
+const SourceContext = createContext({ id: "" });
+export const useSourceId = () => useContext(SourceContext).id;
 
 export const Source = ({ children, id, ...props }: PropTypes) => {
   const { map } = useMap();
@@ -63,5 +69,9 @@ export const Source = ({ children, id, ...props }: PropTypes) => {
     };
   }, []);
 
-  return isLoaded && children;
+  return (
+    <SourceContext.Provider value={{ id }}>
+      {isLoaded && children}
+    </SourceContext.Provider>
+  );
 };
