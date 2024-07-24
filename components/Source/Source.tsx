@@ -1,3 +1,4 @@
+import { removeLayersBySource } from "$/components/Source/sourceUtils";
 import { useMap } from "$/hooks/useMap";
 import {
   GeoJSONSourceSpecification,
@@ -24,8 +25,10 @@ type PropTypes = {
 /**
  * Used to pass the source ID to any child <Layer> components:
  */
-const SourceContext = createContext({ id: "" });
-export const useSourceId = () => useContext(SourceContext).id;
+const SourceContext = createContext({
+  id: "",
+});
+export const useSourceContext = () => useContext(SourceContext);
 
 export const Source = ({ children, id, ...props }: PropTypes) => {
   const { map } = useMap();
@@ -65,6 +68,10 @@ export const Source = ({ children, id, ...props }: PropTypes) => {
      * When component unmounts, remove the source from the map:
      */
     return () => {
+      /**
+       * Remove all dependent layers from the map before removing source:
+       */
+      removeLayersBySource(map, id);
       map?.removeSource(id);
     };
   }, []);

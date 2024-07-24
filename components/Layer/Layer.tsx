@@ -8,7 +8,7 @@ import {
   RasterLayerProps,
   SymbolLayerProps,
 } from "$/components/Layer/types/Layer";
-import { useSourceId } from "$/components/Source";
+import { useSourceContext } from "$/components/Source/Source";
 import { useMap } from "$/hooks/useMap";
 import {
   BackgroundLayerSpecification,
@@ -39,9 +39,7 @@ export const Layer = (
     | BackgroundLayerSpecification
 ) => {
   const { map } = useMap();
-  const sourceId = useSourceId();
-
-  console.log("layer props: ", props);
+  const { id: sourceId } = useSourceContext();
 
   /**
    * Add layer to map on component mount:
@@ -51,49 +49,49 @@ export const Layer = (
       case "fill":
         map?.addLayer({
           ...(props as FillLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "line":
         map?.addLayer({
           ...(props as LineLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "symbol":
         map?.addLayer({
           ...(props as SymbolLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "raster":
         map?.addLayer({
           ...(props as RasterLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "circle":
         map?.addLayer({
           ...(props as CircleLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "fill-extrusion":
         map?.addLayer({
           ...(props as FillExtrusionLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "heatmap":
         map?.addLayer({
           ...(props as HeatmapLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "hillshade":
         map?.addLayer({
           ...(props as HillshadeLayerSpecification),
-          source: sourceId,
+          source: props.source || sourceId,
         });
         break;
       case "background":
@@ -105,8 +103,10 @@ export const Layer = (
      * On component unmount, remove the layer from the map:
      */
     return () => {
-      map?.removeLayer(props.id);
-      console.log("remove layer");
+      /**
+       * Remove the layer from the map, if it exists. Layers that depend on a <Source> are removed when the <Source> unmounts, so they shouldn't be removed again:
+       */
+      if (map?.getLayer(props.id)) map?.removeLayer(props.id);
     };
   }, []);
 

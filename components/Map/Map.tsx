@@ -73,8 +73,13 @@ export const Map = ({
   const [map, setMap] = useState<maptilersdk.Map | null>(null);
   const mapContainer = useRef<HTMLDivElement | null>(null);
 
+  /**
+   * When isInitialized is set to false, remove the map:
+   */
   useEffect(() => {
-    return () => map?.remove();
+    return () => {
+      if (!isInitialized) map?.remove();
+    };
   }, [isInitialized]);
 
   useEffect(() => {
@@ -115,18 +120,17 @@ export const Map = ({
   ]);
   return (
     <MapContext.Provider value={{ map, styleLoaded }}>
-      <div
+      {children}
+      {/* <div
         className="map-wrap"
         style={{ position: "relative", width: "100%", height: "100%" }}
-      >
-        <div
-          className={clsx(className, "map")}
-          style={{ position: "absolute", width: "100%", height: "100%" }}
-          ref={mapContainer}
-        >
-          {children}
-        </div>
-      </div>
+      > */}
+      <div
+        className={clsx(className, "map")}
+        style={{ position: "absolute", width: "100%", height: "100%" }}
+        ref={mapContainer}
+      ></div>
+      {/* </div> */}
     </MapContext.Provider>
   );
 };
