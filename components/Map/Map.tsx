@@ -11,6 +11,7 @@ type ControlLocation =
 
 type MapTypes = {
   children?: ReactNode;
+  isInitialized?: boolean;
   className?: string;
   style?: maptilersdk.ReferenceMapStyle;
   language?: maptilersdk.LanguageString;
@@ -38,14 +39,22 @@ type MapTypes = {
 
 type MapContextTypes = {
   map?: maptilersdk.Map | null;
+  styleLoaded?: boolean;
 };
 
 export const MapContext = createContext<MapContextTypes>({
   map: null,
+  styleLoaded: false,
 });
 
+/**
+ *
+ * @param {boolean} initialize - Whether or not to initialize the map. This is useful if a user wants to add a map high up in the component tree (in order to limit the number of map sessions), but doesn't want to initialize the map until it's needed.
+ * @returns
+ */
 export const Map = ({
   children,
+  isInitialized = true,
   className,
   style = maptilersdk.MapStyle.SATELLITE,
   language,
@@ -65,8 +74,16 @@ export const Map = ({
   const mapContainer = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (map || !mapContainer.current) return;
+    return () => map?.remove();
+  }, [isInitialized]);
+
+  useEffect(() => {
     console.log("MAP MOUNTED");
+    return () => console.log("MAP UNMOUNTED");
+  }, []);
+
+  useEffect(() => {
+    if (map || !mapContainer.current || !isInitialized) return;
     const newMap = new maptilersdk.Map({
       apiKey,
       container: mapContainer.current,
@@ -79,17 +96,25 @@ export const Map = ({
       bounds,
     });
 
+    /**
+     * Track style load state so that it can be tracked with the useMap() hook:
+     */
     newMap.on("style.load", () => setStyleLoaded(true));
 
     setMap(newMap);
-
-    return () => {
-      newMap.remove();
-      console.log("MAP UNMOUNTED");
-    };
-  }, [apiKey, style, center, zoom, language, bearing, pitch, bounds]);
+  }, [
+    isInitialized,
+    apiKey,
+    style,
+    center,
+    zoom,
+    language,
+    bearing,
+    pitch,
+    bounds,
+  ]);
   return (
-    <MapContext.Provider value={{ map }}>
+    <MapContext.Provider value={{ map, styleLoaded }}>
       <div
         className="map-wrap"
         style={{ position: "relative", width: "100%", height: "100%" }}
@@ -99,7 +124,7 @@ export const Map = ({
           style={{ position: "absolute", width: "100%", height: "100%" }}
           ref={mapContainer}
         >
-          {styleLoaded && children}
+          {children}
         </div>
       </div>
     </MapContext.Provider>

@@ -37,7 +37,7 @@ export const Popup = ({
   offset = 40,
   maxWidth,
 }: PropTypes) => {
-  const map = useMap();
+  const { map } = useMap();
   /**
    * If lng and lat aren't passed as props, try to get them from parent <Marker> (if it exists):
    */

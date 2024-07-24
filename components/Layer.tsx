@@ -14,7 +14,7 @@ import {
 import { useEffect } from "react";
 
 export const Layer = (props: LayerSpecification) => {
-  const map = useMap();
+  const { map } = useMap();
 
   /**
    * Add layer to map on component mount:
@@ -22,31 +22,31 @@ export const Layer = (props: LayerSpecification) => {
   useEffect(() => {
     switch (props.type) {
       case "fill":
-        map.addLayer(props as FillLayerSpecification);
+        map?.addLayer(props as FillLayerSpecification);
         break;
       case "line":
-        map.addLayer(props as LineLayerSpecification);
+        map?.addLayer(props as LineLayerSpecification);
         break;
       case "symbol":
-        map.addLayer(props as SymbolLayerSpecification);
+        map?.addLayer(props as SymbolLayerSpecification);
         break;
       case "raster":
-        map.addLayer(props as RasterLayerSpecification);
+        map?.addLayer(props as RasterLayerSpecification);
         break;
       case "circle":
-        map.addLayer(props as CircleLayerSpecification);
+        map?.addLayer(props as CircleLayerSpecification);
         break;
       case "fill-extrusion":
-        map.addLayer(props as FillExtrusionLayerSpecification);
+        map?.addLayer(props as FillExtrusionLayerSpecification);
         break;
       case "heatmap":
-        map.addLayer(props as HeatmapLayerSpecification);
+        map?.addLayer(props as HeatmapLayerSpecification);
         break;
       case "hillshade":
-        map.addLayer(props as HillshadeLayerSpecification);
+        map?.addLayer(props as HillshadeLayerSpecification);
         break;
       case "background":
-        map.addLayer(props as BackgroundLayerSpecification);
+        map?.addLayer(props as BackgroundLayerSpecification);
         break;
     }
 
@@ -54,7 +54,7 @@ export const Layer = (props: LayerSpecification) => {
      * On component unmount, remove the layer from the map:
      */
     return () => {
-      map.removeLayer(props.id);
+      map?.removeLayer(props.id);
     };
   }, []);
 

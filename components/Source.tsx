@@ -22,7 +22,7 @@ type PropTypes = {
 );
 
 export const Source = ({ children, id, ...props }: PropTypes) => {
-  const map = useMap();
+  const { map } = useMap();
   /**
    * Used to prevent children (i.e. <Layer>) from rendering before the source is added to the map:
    */
@@ -34,22 +34,22 @@ export const Source = ({ children, id, ...props }: PropTypes) => {
   useEffect(() => {
     switch (props.type) {
       case "geojson":
-        map.addSource(id, props as GeoJSONSourceSpecification);
+        map?.addSource(id, props as GeoJSONSourceSpecification);
         break;
       case "vector":
-        map.addSource(id, props as VectorSourceSpecification);
+        map?.addSource(id, props as VectorSourceSpecification);
         break;
       case "raster":
-        map.addSource(id, props as RasterSourceSpecification);
+        map?.addSource(id, props as RasterSourceSpecification);
         break;
       case "raster-dem":
-        map.addSource(id, props as RasterDEMSourceSpecification);
+        map?.addSource(id, props as RasterDEMSourceSpecification);
         break;
       case "image":
-        map.addSource(id, props as ImageSourceSpecification);
+        map?.addSource(id, props as ImageSourceSpecification);
         break;
       case "video":
-        map.addSource(id, props as VideoSourceSpecification);
+        map?.addSource(id, props as VideoSourceSpecification);
         break;
     }
 
@@ -59,7 +59,7 @@ export const Source = ({ children, id, ...props }: PropTypes) => {
      * When component unmounts, remove the source from the map:
      */
     return () => {
-      map.removeSource(id);
+      map?.removeSource(id);
     };
   }, []);
 

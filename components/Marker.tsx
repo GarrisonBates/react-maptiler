@@ -64,7 +64,7 @@ export const Marker = ({
   height = 41,
   data,
 }: MarkerType) => {
-  const map = useMap();
+  const { map } = useMap();
 
   useEffect(() => {
     if (!map) throw new Error("<Marker> must be a child of <Map>");
