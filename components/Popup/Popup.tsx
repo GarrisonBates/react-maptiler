@@ -65,6 +65,7 @@ export const Popup = ({
     })
       .setLngLat(lngLat)
       .addTo(map);
+    console.log("popup: ", popup);
 
     /**
      * If JSX children are passed to the <Popup>, render them as DOM content and pass to popup:

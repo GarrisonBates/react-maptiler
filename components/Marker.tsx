@@ -29,9 +29,9 @@ type MarkerType = {
   /**
    * Event handlers:
    */
-  onClick?: (e?: MouseEvent) => void;
-  onDrag?: (e?: maptilersdk.MapMouseEvent) => void;
-  onDragend?: (e?: maptilersdk.MapMouseEvent) => void;
+  onClick?: (e: MouseEvent) => void;
+  onDrag?: (e: maptilersdk.MapMouseEvent) => void;
+  onDragend?: (e: { target: maptilersdk.Marker }) => void;
 };
 
 type MarkerContextType = {

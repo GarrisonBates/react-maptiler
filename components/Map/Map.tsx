@@ -25,12 +25,13 @@ type MapTypes = {
   terrain?: boolean;
   terrainExaggeration?: number;
   geolocate?: boolean; // @TODO: GeolocationType.POINT | maptilersdk.GeolocationType.COUNTRY
-  attributionControl?: boolean;
+  attributionControl?: false | maptilersdk.AttributionControlOptions;
   navigationControl?: boolean | ControlLocation;
   terrainControl?: boolean | ControlLocation;
   geolocateControl?: boolean | ControlLocation;
   scaleControl?: boolean | ControlLocation;
   fullscreenControl?: boolean | ControlLocation;
+  maptilerLogo?: boolean;
   minimap?: boolean | ControlLocation | maptilersdk.MinimapOptionsInput;
   minZoom?: number;
   maxZoom?: number;
@@ -64,6 +65,21 @@ export const Map = ({
   bearing = 0,
   pitch = 0,
   bounds,
+  hash = false,
+  terrain = false,
+  terrainExaggeration = 1,
+  geolocate = false,
+  attributionControl = false,
+  navigationControl = true,
+  terrainControl = false,
+  geolocateControl = true,
+  scaleControl = false,
+  fullscreenControl = false,
+  maptilerLogo = false,
+  minimap = false,
+  minZoom = 0,
+  maxZoom = 22,
+  minPitch = 0,
 }: MapTypes) => {
   const [styleLoaded, setStyleLoaded] = useState(false);
 
@@ -99,6 +115,21 @@ export const Map = ({
       bearing,
       pitch,
       bounds,
+      hash,
+      terrain,
+      terrainExaggeration,
+      geolocate,
+      attributionControl,
+      navigationControl,
+      terrainControl,
+      geolocateControl,
+      scaleControl,
+      fullscreenControl,
+      maptilerLogo,
+      minimap,
+      minZoom,
+      maxZoom,
+      minPitch,
     });
 
     /**

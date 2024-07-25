@@ -4,3 +4,4 @@ export { Marker } from "$/components/Marker";
 export { Popup } from "$/components/Popup/Popup";
 export { Source } from "$/components/Source/Source";
 export { useMap } from "$/hooks/useMap";
+export { useMapEvent } from "$/hooks/useMapEvent";

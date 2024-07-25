@@ -5,6 +5,8 @@ export const useMap = () => {
   const context = useContext(MapContext);
   const { map, styleLoaded } = context;
 
+  if (!map) throw new Error("useMap must be called from a child of <Map>");
+
   /**
    * Initialize the map if it hasn't been yet:
    */

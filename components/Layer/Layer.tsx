@@ -18,6 +18,7 @@ import {
   HeatmapLayerSpecification,
   HillshadeLayerSpecification,
   LineLayerSpecification,
+  MapMouseEvent,
   RasterLayerSpecification,
   SymbolLayerSpecification,
 } from "@maptiler/sdk";
@@ -27,7 +28,10 @@ export const Layer = (
   /**
    * Props are derived from <Type>LayerSpecification props from MapTiler SDK. However, "source" is made optional, since any <Layer> that's child of <Source> will use parent source's id as the source.
    */
-  props:
+  {
+    onClick,
+    ...props
+  }: (
     | FillLayerProps
     | LineLayerProps
     | SymbolLayerProps
@@ -37,6 +41,7 @@ export const Layer = (
     | RasterLayerProps
     | HillshadeLayerProps
     | BackgroundLayerSpecification
+  ) & { onClick?: (e: MapMouseEvent) => void }
 ) => {
   const { map } = useMap();
   const { id: sourceId } = useSourceContext();
@@ -99,6 +104,7 @@ export const Layer = (
         break;
     }
 
+    if (onClick) map?.on("click", props.id, onClick);
     /**
      * On component unmount, remove the layer from the map:
      */
