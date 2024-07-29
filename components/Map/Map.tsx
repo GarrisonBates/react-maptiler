@@ -44,7 +44,7 @@ type MapTypes = {
   maxZoom?: number;
   minPitch?: number;
   // @TODO: Add options here from maxPitch to bearingSnap
-  pitchWithRotate: boolean;
+  pitchWithRotate?: boolean;
 };
 
 type MapContextTypes = {

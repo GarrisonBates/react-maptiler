@@ -1,3 +1,4 @@
+export { CustomControl } from "$/components/CustomControl";
 export { Layer } from "$/components/Layer/Layer";
 export { Map } from "$/components/Map/Map";
 export { Marker } from "$/components/Marker";
