@@ -25,6 +25,13 @@ type PropTypes = {
   maxWidth?: string;
 };
 
+/**
+ * Represents a Popup on the map, which is typically (but not necessarily) associated with a Marker and usually contains text or HTML content.
+ * @param children - JSX content that should be displayed within the popup
+ * @param className - CSS classes to apply to the popup
+ * 
+ * @returns 
+ */
 export const Popup = ({
   children: innerHTML,
   className,
@@ -39,7 +46,7 @@ export const Popup = ({
 }: PropTypes) => {
   const { map } = useMap();
   /**
-   * If lng and lat aren't passed as props, try to get them from parent <Marker> (if it exists):
+   * If lngLat isn't passed as props, get it from parent <Marker> (if one exists):
    */
   const { lngLat } = lngLatProp
     ? { lngLat: lngLatProp }
@@ -53,7 +60,7 @@ export const Popup = ({
       throw new Error(
         "<Popup> must have lng and lat, or be a child of <Marker>"
       );
-    const popup = new maptilersdk.Popup({
+    const newPopup = new maptilersdk.Popup({
       className,
       closeButton,
       closeOnClick,
@@ -65,24 +72,40 @@ export const Popup = ({
     })
       .setLngLat(lngLat)
       .addTo(map);
-    console.log("popup: ", popup);
 
     /**
      * If JSX children are passed to the <Popup>, render them as DOM content and pass to popup:
      */
     if (innerHTML) {
       const container = convertReactNodeToDomNode(innerHTML);
-      popup.setDOMContent(container);
+      newPopup.setDOMContent(container);
     }
+
+    /**
+     * Save popup in ref for later access:
+     */
+    popup.current = newPopup;
 
     /**
      * Remove the popup when the component unmounts:
      */
     return () => {
-      popup.remove();
+      newPopup.remove();
     };
-  }, []);
+  }, [
+    className,
+    closeButton,
+    closeOnClick,
+    closeOnMove,
+    focusAfterOpen,
+    anchor,
+    offset,
+    maxWidth,
+  ]);
 
+  /**
+   * Update popup's coordinates when updated:
+   */
   useEffect(() => {
     if (lngLat) popup.current?.setLngLat(lngLat);
   }, [lngLat]);

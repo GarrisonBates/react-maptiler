@@ -31,7 +31,7 @@ const SourceContext = createContext({
 export const useSourceContext = () => useContext(SourceContext);
 
 export const Source = ({ children, id, ...props }: PropTypes) => {
-  const { map } = useMap();
+  const { map, styleLoaded } = useMap();
   /**
    * Used to prevent children (i.e. <Layer>) from rendering before the source is added to the map:
    */
@@ -41,28 +41,29 @@ export const Source = ({ children, id, ...props }: PropTypes) => {
    * Add the source to the map:
    */
   useEffect(() => {
-    switch (props.type) {
-      case "geojson":
-        map?.addSource(id, props as GeoJSONSourceSpecification);
-        break;
-      case "vector":
-        map?.addSource(id, props as VectorSourceSpecification);
-        break;
-      case "raster":
-        map?.addSource(id, props as RasterSourceSpecification);
-        break;
-      case "raster-dem":
-        map?.addSource(id, props as RasterDEMSourceSpecification);
-        break;
-      case "image":
-        map?.addSource(id, props as ImageSourceSpecification);
-        break;
-      case "video":
-        map?.addSource(id, props as VideoSourceSpecification);
-        break;
+    if (styleLoaded) {
+      switch (props.type) {
+        case "geojson":
+          map?.addSource(id, props as GeoJSONSourceSpecification);
+          break;
+        case "vector":
+          map?.addSource(id, props as VectorSourceSpecification);
+          break;
+        case "raster":
+          map?.addSource(id, props as RasterSourceSpecification);
+          break;
+        case "raster-dem":
+          map?.addSource(id, props as RasterDEMSourceSpecification);
+          break;
+        case "image":
+          map?.addSource(id, props as ImageSourceSpecification);
+          break;
+        case "video":
+          map?.addSource(id, props as VideoSourceSpecification);
+          break;
+      }
+      setIsLoaded(true);
     }
-
-    setIsLoaded(true);
 
     /**
      * When component unmounts, remove the source from the map:
@@ -72,9 +73,12 @@ export const Source = ({ children, id, ...props }: PropTypes) => {
        * Remove all dependent layers from the map before removing source:
        */
       removeLayersBySource(map, id);
-      map?.removeSource(id);
+      /**
+       * Sometimes this line will run before the source is added to the map, since sometimes the style hasn't loaded until the second render.
+       */
+      if (map?.getSource(id)) map?.removeSource(id);
     };
-  }, []);
+  }, [styleLoaded]);
 
   return (
     <SourceContext.Provider value={{ id }}>

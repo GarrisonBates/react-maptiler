@@ -1,7 +1,14 @@
 import * as maptilersdk from "@maptiler/sdk";
 import "@maptiler/sdk/dist/maptiler-sdk.css";
 import clsx from "clsx";
-import { createContext, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  MutableRefObject,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type ControlLocation =
   | "top-left"
@@ -11,7 +18,7 @@ type ControlLocation =
 
 type MapTypes = {
   children?: ReactNode;
-  isInitialized?: boolean;
+  initialize?: boolean;
   className?: string;
   style?: maptilersdk.ReferenceMapStyle;
   language?: maptilersdk.LanguageString;
@@ -39,12 +46,12 @@ type MapTypes = {
 };
 
 type MapContextTypes = {
-  map?: maptilersdk.Map | null;
+  map?: MutableRefObject<maptilersdk.Map | null>;
   styleLoaded?: boolean;
 };
 
 export const MapContext = createContext<MapContextTypes>({
-  map: null,
+  map: { current: null },
   styleLoaded: false,
 });
 
@@ -55,7 +62,7 @@ export const MapContext = createContext<MapContextTypes>({
  */
 export const Map = ({
   children,
-  isInitialized = true,
+  initialize = true,
   className,
   style = maptilersdk.MapStyle.SATELLITE,
   language,
@@ -86,25 +93,25 @@ export const Map = ({
   /**
    * map stores map object, and mapContainer is a ref to the container that will hold the map:
    */
-  const [map, setMap] = useState<maptilersdk.Map | null>(null);
+  const map = useRef<maptilersdk.Map | null>(null);
   const mapContainer = useRef<HTMLDivElement | null>(null);
 
   /**
-   * When isInitialized is set to false, remove the map:
+   * When initialize is changed to false, remove the map:
    */
   useEffect(() => {
-    return () => {
-      if (!isInitialized) map?.remove();
-    };
-  }, [isInitialized]);
+    if (!initialize) {
+      map.current?.remove();
+      map.current = null;
+    }
+  }, [initialize]);
 
+  /**
+   * Initialize the map if initialize === true and the map hasn't already been created:
+   */
   useEffect(() => {
-    console.log("MAP MOUNTED");
-    return () => console.log("MAP UNMOUNTED");
-  }, []);
-
-  useEffect(() => {
-    if (map || !mapContainer.current || !isInitialized) return;
+    console.log("map.current: ", map.current);
+    if (map.current || !mapContainer.current || !initialize) return;
     const newMap = new maptilersdk.Map({
       apiKey,
       container: mapContainer.current,
@@ -137,9 +144,9 @@ export const Map = ({
      */
     newMap.on("style.load", () => setStyleLoaded(true));
 
-    setMap(newMap);
+    map.current = newMap;
   }, [
-    isInitialized,
+    initialize,
     apiKey,
     style,
     center,
@@ -148,20 +155,36 @@ export const Map = ({
     bearing,
     pitch,
     bounds,
+    hash,
+    terrain,
+    terrainExaggeration,
+    geolocate,
+    attributionControl,
+    navigationControl,
+    terrainControl,
+    geolocateControl,
+    scaleControl,
+    fullscreenControl,
+    maptilerLogo,
+    minimap,
+    minZoom,
+    maxZoom,
+    minPitch,
   ]);
   return (
     <MapContext.Provider value={{ map, styleLoaded }}>
-      {children}
-      {/* <div
-        className="map-wrap"
-        style={{ position: "relative", width: "100%", height: "100%" }}
-      > */}
+      {/* Only render children if map is fully initialized and loaded: */}
+      {map && styleLoaded && children}
       <div
         className={clsx(className, "map")}
-        style={{ position: "absolute", width: "100%", height: "100%" }}
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+        }}
         ref={mapContainer}
       ></div>
-      {/* </div> */}
     </MapContext.Provider>
   );
 };
