@@ -43,6 +43,8 @@ type MapTypes = {
   minZoom?: number;
   maxZoom?: number;
   minPitch?: number;
+  // @TODO: Add options here from maxPitch to bearingSnap
+  pitchWithRotate: boolean;
 };
 
 type MapContextTypes = {
@@ -87,6 +89,8 @@ export const Map = ({
   minZoom = 0,
   maxZoom = 22,
   minPitch = 0,
+  // @TODO: Add options here from maxPitch to bearingSnap
+  pitchWithRotate = true,
 }: MapTypes) => {
   const [styleLoaded, setStyleLoaded] = useState(false);
 
@@ -137,6 +141,8 @@ export const Map = ({
       minZoom,
       maxZoom,
       minPitch,
+      // @TODO: Add options here from maxPitch to bearingSnap
+      pitchWithRotate,
     });
 
     /**
@@ -170,11 +176,12 @@ export const Map = ({
     minZoom,
     maxZoom,
     minPitch,
+    // @TODO: Add options here from maxPitch to bearingSnap
+    pitchWithRotate,
   ]);
   return (
     <MapContext.Provider value={{ map, styleLoaded }}>
-      {/* Only render children if map is fully initialized and loaded: */}
-      {map && styleLoaded && children}
+      {children}
       <div
         className={clsx(className, "map")}
         style={{

@@ -51,7 +51,8 @@ export const Popup = ({
   offset = 40,
   maxWidth,
 }: PropTypes) => {
-  const { map } = useMap();
+  const { map, styleLoaded } = useMap();
+
   /**
    * If lngLat isn't passed as props, get it from parent <Marker> (if one exists):
    */
@@ -62,6 +63,10 @@ export const Popup = ({
   const popup = useRef<maptilersdk.Popup | null>(null);
 
   useEffect(() => {
+    /**
+     * Ensure map is initialized and style is loaded before creating the Popup:
+     */
+    if (!styleLoaded) return;
     if (!map) throw new Error("<Popup> must be a child of <Map>");
     if (!lngLat)
       throw new Error(
@@ -100,6 +105,7 @@ export const Popup = ({
       newPopup.remove();
     };
   }, [
+    styleLoaded,
     className,
     closeButton,
     closeOnClick,

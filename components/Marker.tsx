@@ -64,9 +64,13 @@ export const Marker = ({
   height = 41,
   data,
 }: MarkerType) => {
-  const { map } = useMap();
+  const { map, styleLoaded } = useMap();
 
   useEffect(() => {
+    /**
+     * Ensure map is initialized and style is loaded before creating the Marker:
+     */
+    if (!styleLoaded) return;
     if (!map) throw new Error("<Marker> must be a child of <Map>");
 
     /**
@@ -117,7 +121,24 @@ export const Marker = ({
     return () => {
       marker.remove();
     };
-  }, []);
+  }, [
+    styleLoaded,
+    id,
+    lngLat,
+    anchor,
+    className,
+    clickTolerance,
+    color,
+    draggable,
+    elementProp,
+    onClick,
+    onDrag,
+    onDragend,
+    src,
+    width,
+    height,
+    data,
+  ]);
 
   return (
     <MarkerContext.Provider value={{ lngLat }}>
