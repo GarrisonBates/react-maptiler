@@ -11,6 +11,11 @@ type PropTypes = {
   onClick?: () => void;
 };
 
+/**
+ * A custom map control.
+ * @param className - CSS classes to apply to the control. It's highly recommended to use the "maplibregl-ctrl" class for this, as it automatically positions the control the same way as the built-in controls. It is also recommended to use "#444853" as the text color, in order to match the default control styles.
+ * @returns
+ */
 export const CustomControl = ({
   children: innerHTML,
   className,

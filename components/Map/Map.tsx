@@ -50,11 +50,13 @@ type MapTypes = {
 type MapContextTypes = {
   map?: MutableRefObject<maptilersdk.Map | null>;
   styleLoaded?: boolean;
+  loaded?: boolean;
 };
 
 export const MapContext = createContext<MapContextTypes>({
   map: { current: null },
   styleLoaded: false,
+  loaded: false,
 });
 
 /**
@@ -92,7 +94,11 @@ export const Map = ({
   // @TODO: Add options here from maxPitch to bearingSnap
   pitchWithRotate = true,
 }: MapTypes) => {
+  /**
+   * Used to track map load states (e.g. "load" or "style.load")
+   */
   const [styleLoaded, setStyleLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   /**
    * map stores map object, and mapContainer is a ref to the container that will hold the map:
@@ -114,7 +120,6 @@ export const Map = ({
    * Initialize the map if initialize === true and the map hasn't already been created:
    */
   useEffect(() => {
-    console.log("map.current: ", map.current);
     if (map.current || !mapContainer.current || !initialize) return;
     const newMap = new maptilersdk.Map({
       apiKey,
@@ -146,9 +151,10 @@ export const Map = ({
     });
 
     /**
-     * Track style load state so that it can be tracked with the useMap() hook:
+     * Track map load states so that they can be tracked with the useMap() hook:
      */
-    newMap.on("style.load", () => setStyleLoaded(true));
+    newMap.once("style.load", () => setStyleLoaded(true));
+    newMap.once("load", () => setLoaded(true));
 
     map.current = newMap;
   }, [
@@ -180,7 +186,7 @@ export const Map = ({
     pitchWithRotate,
   ]);
   return (
-    <MapContext.Provider value={{ map, styleLoaded }}>
+    <MapContext.Provider value={{ map, styleLoaded, loaded }}>
       {children}
       <div
         className={clsx(className, "map")}
