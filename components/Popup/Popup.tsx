@@ -7,6 +7,7 @@ import { ReactNode, useEffect, useRef } from "react";
 type PropTypes = {
   children?: ReactNode;
   className?: string;
+  isOpen?: boolean | null;
   lngLat?: maptilersdk.LngLatLike;
   closeButton?: boolean;
   closeOnClick?: boolean;
@@ -29,6 +30,7 @@ type PropTypes = {
  * Represents a Popup on the map, which is typically (but not necessarily) associated with a Marker and usually contains text or HTML content.
  * @param children - JSX or text that should be displayed within the popup.
  * @param className - CSS classes to apply to the popup.
+ * @param isOpen - If a value is passed to isOpen, this controls the popup's visibility. This invalidates all other visibility settings, including closeOnMove, closeOnClick, and closeButton. This is useful for avoiding unnecessarily rerendering the popup every time it's toggled.
  * @param lngLat - LngLatLike containing the coordinates of the popup in the format [lng, lat] or {"lon": lng, "lat": lat}. If a lngLat prop is not passed, it will default to the lngLat of the parent <Marker> (if one exists).
  * @param closeButton - Whether or not to display a button in the corner of the popup that can be used to close it.
  * @param closeOnClick - Whether the popup should close when the map is clicked.
@@ -42,6 +44,7 @@ type PropTypes = {
 export const Popup = ({
   children: innerHTML,
   className,
+  isOpen = null,
   lngLat: lngLatProp,
   closeButton,
   closeOnClick = true,
@@ -62,6 +65,9 @@ export const Popup = ({
 
   const popup = useRef<maptilersdk.Popup | null>(null);
 
+  /**
+   * Initialize the popup:
+   */
   useEffect(() => {
     /**
      * Ensure map is initialized and style is loaded before creating the Popup:
@@ -72,24 +78,44 @@ export const Popup = ({
       throw new Error(
         "<Popup> must have lng and lat, or be a child of <Marker>"
       );
-    const newPopup = new maptilersdk.Popup({
-      className,
-      closeButton,
-      closeOnClick,
-      closeOnMove,
-      focusAfterOpen,
-      anchor,
-      offset,
-      maxWidth,
-    })
-      .setLngLat(lngLat)
-      .addTo(map);
+
+    let newPopup;
+    /**
+     * If isOpen isn't passed (is null), initialize the Popup as normal. Otherwise, create a Popup that's entirely controlled by the isOpen prop, and that isn't removed from map unless unmounted.
+     */
+    if (isOpen === null) {
+      newPopup = new maptilersdk.Popup({
+        className,
+        closeButton,
+        closeOnClick,
+        closeOnMove,
+        focusAfterOpen,
+        anchor,
+        offset,
+        maxWidth,
+      });
+    } else {
+      newPopup = new maptilersdk.Popup({
+        className,
+        closeOnClick: false,
+        closeOnMove: false,
+        closeButton: false,
+        focusAfterOpen,
+        anchor,
+        offset,
+        maxWidth,
+      });
+    }
+    newPopup.setLngLat(lngLat).addTo(map);
 
     /**
      * If JSX children are passed to the <Popup>, render them as DOM content and pass to popup:
      */
     if (innerHTML) {
       const container = convertReactNodeToDomNode(innerHTML);
+      /**
+       * Set the popup's DOM content to children prop:
+       */
       newPopup.setDOMContent(container);
     }
 
@@ -115,6 +141,17 @@ export const Popup = ({
     offset,
     maxWidth,
   ]);
+
+  /**
+   * Update the popup's visibility whenever isOpen changes:
+   */
+  useEffect(() => {
+    const el = popup.current?.getElement();
+    if (el) {
+      if (isOpen) el.style.display = "flex";
+      else if (isOpen === false) el.style.display = "none";
+    }
+  }, [isOpen]);
 
   /**
    * Update popup's coordinates when updated:

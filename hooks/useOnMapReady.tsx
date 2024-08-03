@@ -11,7 +11,41 @@ type Callbacks = { [key: string]: Function[] };
  */
 export const useOnMapReady = () => {
   const { map, loaded, styleLoaded } = useMap();
+  console.log("styleLoaded:");
   const [callbacks, setCallbacks] = useState<Callbacks>({});
+  const [test, setTest] = useState("");
+
+  useEffect(() => {
+    // setTestHere(() => {}, "load");
+    console.log("TEST: ", test);
+    console.log("callbacks: ", callbacks);
+  }, [callbacks, test]);
+
+  const setTestHere = (callback: () => void, state: LoadState = "load") => {
+    console.log("SET TEST HERE");
+    setTest("THIS IS TEST");
+  };
+
+  const onMapReady = (callback: () => void, state: LoadState = "load") => {
+    console.log("ONMAPREADY", state, callback);
+    /**
+     * If the map has already been initialized and the specified map state has been reached, execute the callback:
+     */
+    console.log("map: ", map, "mapStates: ", mapStates, "state: ", state);
+
+    if (map && mapStates[state]) callback();
+    /**
+     * If the map hasn't been initialized yet, or the map hasn't reached the specified load state, add the callback to the list of callbacks that will be executed when the map is ready:
+     */ else {
+      const newCallbacks = { ...callbacks }; // Clone callbacks
+      if (!newCallbacks[state]) newCallbacks[state] = []; // Make sure that a list is initialized for the state if needed
+      newCallbacks[state].push(callback); // Append the callback to the list
+      console.log(newCallbacks);
+      setCallbacks(newCallbacks);
+      setTest("TESTTEST");
+      console.log("after setCallbacks");
+    }
+  };
 
   /**
    * Maps each state to the function that checks if that state has been reached.
@@ -41,19 +75,5 @@ export const useOnMapReady = () => {
     if (styleLoaded) executeAllCallbacks("style.load");
   }, [loaded, styleLoaded]);
 
-  const onMapReady = (callback: () => void, state: LoadState = "load") => {
-    /**
-     * If the map has already been initialized and the specified map state has been reached, execute the callback:
-     */
-    if (map && mapStates[state]) callback();
-    /**
-     * If the map hasn't been initialized yet, or the map hasn't reached the specified load state, add the callback to the list of callbacks that will be executed when the map is ready:
-     */ else {
-      setCallbacks({
-        ...callbacks,
-        [state]: callbacks[state] ? [...callbacks[state], callback] : [],
-      });
-    }
-  };
-  return onMapReady;
+  return { onMapReady, setTestHere };
 };
