@@ -7,4 +7,4 @@ export { Popup } from "$/components/Popup/Popup";
 export { Source } from "$/components/Source/Source";
 export { useMap } from "$/hooks/useMap";
 export { useMapEvent } from "$/hooks/useMapEvent";
-export { useOnMapReady } from "$/hooks/useOnMapReady";
+// export { useOnMapReady } from "$/hooks/useOnMapReady";

@@ -48,16 +48,13 @@ type MapTypes = {
 };
 
 type MapContextTypes = {
-  map?: MutableRefObject<maptilersdk.Map | null>;
-  styleLoaded?: boolean;
-  loaded?: boolean;
+  map: MutableRefObject<maptilersdk.Map | null>;
+  styleLoaded: boolean;
+  loaded: boolean;
+  initializeMap: () => void;
 };
 
-export const MapContext = createContext<MapContextTypes>({
-  map: { current: null },
-  styleLoaded: false,
-  loaded: false,
-});
+export const MapContext = createContext<MapContextTypes | undefined>(undefined);
 
 /**
  *
@@ -66,7 +63,7 @@ export const MapContext = createContext<MapContextTypes>({
  */
 export const Map = ({
   children,
-  initialize = true,
+  initialize: initializeProp = true,
   className,
   style = maptilersdk.MapStyle.SATELLITE,
   language,
@@ -95,6 +92,16 @@ export const Map = ({
   pitchWithRotate = true,
 }: MapTypes) => {
   /**
+   * Used to track initialization state. If the initialize prop is set to false, the map won't be initialized until initializeMap() is called:
+   */
+  const [initialize, setInitialize] = useState(initializeProp);
+
+  const initializeMap = () => {
+    if (map.current) return;
+    setInitialize(true);
+    console.log("INITIALIE MAP HERE");
+  };
+  /**
    * Used to track map load states (e.g. "load" or "style.load")
    */
   const [styleLoaded, setStyleLoaded] = useState(false);
@@ -105,16 +112,6 @@ export const Map = ({
    */
   const map = useRef<maptilersdk.Map | null>(null);
   const mapContainer = useRef<HTMLDivElement | null>(null);
-
-  /**
-   * When initialize is changed to false, remove the map:
-   */
-  useEffect(() => {
-    if (!initialize) {
-      map.current?.remove();
-      map.current = null;
-    }
-  }, [initialize]);
 
   /**
    * Initialize the map if initialize === true and the map hasn't already been created:
@@ -186,7 +183,7 @@ export const Map = ({
     pitchWithRotate,
   ]);
   return (
-    <MapContext.Provider value={{ map, styleLoaded, loaded }}>
+    <MapContext.Provider value={{ map, styleLoaded, loaded, initializeMap }}>
       {children}
       <div
         className={clsx(className, "map")}

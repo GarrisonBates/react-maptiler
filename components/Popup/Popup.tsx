@@ -117,6 +117,7 @@ export const Popup = ({
        * Set the popup's DOM content to children prop:
        */
       newPopup.setDOMContent(container);
+      newPopup.getElement().style.display = isOpen ? "flex" : "none";
     }
 
     /**
@@ -149,7 +150,9 @@ export const Popup = ({
     const el = popup.current?.getElement();
     if (el) {
       if (isOpen) el.style.display = "flex";
-      else if (isOpen === false) el.style.display = "none";
+      else if (isOpen === false) {
+        el.style.display = "none";
+      }
     }
   }, [isOpen]);
 
