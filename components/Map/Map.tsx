@@ -57,9 +57,78 @@ type MapContextTypes = {
 export const MapContext = createContext<MapContextTypes | undefined>(undefined);
 
 /**
+ * @description Initializes and renders a Map component with customizable options,
+ * including style, language, center, zoom, and controls. It uses React hooks to
+ * manage the map's load state and provide it as a context for child components to access.
  *
- * @param {boolean} initialize - Whether or not to initialize the map. This is useful if a user wants to add a map high up in the component tree (in order to limit the number of map sessions), but doesn't want to initialize the map until it's needed.
- * @returns
+ * @param {object} obj - 32 parameters long. It includes optional and default values
+ * for various map properties such as style, language, zoom level, location, bounds,
+ * controls, and more.
+ *
+ * @param {MapTypes} obj.children - Used to render child components inside the map.
+ *
+ * @param {initializeProp = true} obj.initialize - Used to control map initialization.
+ *
+ * @param {MapTypes} obj.className - Used to set CSS classes for the map container element.
+ *
+ * @param {maptilersdk.MapStyle.SATELLITE} obj.style - Used to specify map visual styles.
+ *
+ * @param {MapTypes} obj.language - Used to set the map's language for text overlays.
+ *
+ * @param {MapTypes} obj.apiKey - Used to authenticate with MapTiler SDK.
+ *
+ * @param {array} obj.center - Used to set the initial location on the map.
+ *
+ * @param {number} obj.zoom - Used to control the map's zoom level.
+ *
+ * @param {number} obj.bearing - Used to set the map's rotation angle.
+ *
+ * @param {number} obj.pitch - Used to adjust map tilt.
+ *
+ * @param {MapTypes} obj.bounds - Used to set map boundaries.
+ *
+ * @param {boolean} obj.hash - Used to enable or disable hash-based navigation on the
+ * map.
+ *
+ * @param {boolean} obj.terrain - Used to enable terrain rendering on the map.
+ *
+ * @param {number} obj.terrainExaggeration - Used to exaggerate terrain features on
+ * the map.
+ *
+ * @param {boolean} obj.geolocate - Used to enable geolocation on the map.
+ *
+ * @param {boolean} obj.attributionControl - Used to display map attribution information.
+ *
+ * @param {boolean} obj.navigationControl - Used to show or hide navigation controls
+ * on the map.
+ *
+ * @param {boolean} obj.terrainControl - Used to display terrain control on the map.
+ *
+ * @param {boolean} obj.geolocateControl - Used to enable or disable geolocation
+ * control on the map.
+ *
+ * @param {boolean} obj.scaleControl - Used to control whether scale information is
+ * visible on the map.
+ *
+ * @param {boolean} obj.fullscreenControl - Used to enable or disable fullscreen control.
+ *
+ * @param {boolean} obj.maptilerLogo - Used to display the MapTiler logo on the map.
+ *
+ * @param {boolean} obj.minimap - Related to displaying a smaller map view within the
+ * main map.
+ *
+ * @param {number} obj.minZoom - Used to set the minimum zoom level of the map.
+ *
+ * @param {number} obj.maxZoom - Used to limit the maximum zoom level of the map.
+ *
+ * @param {number} obj.minPitch - Part of map's camera settings, controlling minimum
+ * pitch angle.
+ *
+ * @param {boolean} obj.pitchWithRotate - Used to enable or disable pitch with rotation.
+ *
+ * @returns {JSX.Element} A provider component that wraps a div element with a reference
+ * to the map container and passes the map object, style loaded state, and loaded
+ * state as props via the MapContext.Provider.
  */
 export const Map = ({
   children,
@@ -96,6 +165,11 @@ export const Map = ({
    */
   const [initialize, setInitialize] = useState(initializeProp);
 
+  /**
+   * @description Checks if a current map is already defined, and only executes further
+   * steps if it's not. It then sets an `initialize` flag to true and logs "INITIALIZE
+   * MAP HERE" to the console.
+   */
   const initializeMap = () => {
     if (map.current) return;
     setInitialize(true);
@@ -117,6 +191,7 @@ export const Map = ({
    * Initialize the map if initialize === true and the map hasn't already been created:
    */
   useEffect(() => {
+    // Initializes a map instance using `maptilersdk.Map` API.
     if (map.current || !mapContainer.current || !initialize) return;
     const newMap = new maptilersdk.Map({
       apiKey,
