@@ -77,8 +77,9 @@ export const Marker = ({
      * Set the marker's HTML element according to props. If src is provided, create an <img> element with the specified width and height. If element is provided, use it. Otherwise, use the MapTiler default:
      */
     let element;
-    if (src) element = <img src={src} width={width} height={height} />;
-    else if (elementProp) element = elementProp;
+    if (src) {
+      element = <img src={src} width={width} height={height} />;
+    } else if (elementProp) element = elementProp;
     else element = undefined;
 
     const marker = new maptilersdk.Marker({

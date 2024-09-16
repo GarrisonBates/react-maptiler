@@ -99,7 +99,6 @@ export const Map = ({
   const initializeMap = () => {
     if (map.current) return;
     setInitialize(true);
-    console.log("INITIALIE MAP HERE");
   };
   /**
    * Used to track map load states (e.g. "load" or "style.load")
